@@ -1,6 +1,9 @@
 const express = require("express");
 
 const router = express.Router();
+const passport = require('../auth')
+
+const localAuthenticationMiddleware = passport.authenticate('local', { session: false });
 
 //import the module from models/perosn.
 const Person = require("../models/person");
@@ -30,7 +33,7 @@ router.post("/", async (req, res) => {
 });
 
 //get meothod to get information
-router.get("/", async (req, res) => {
+router.get("/",localAuthenticationMiddleware ,async (req, res) => {
   try {
     const data = await Person.find();
     console.log("data fetched");
@@ -44,7 +47,7 @@ router.get("/", async (req, res) => {
 });
 
 //get the data of specific user
-router.get("/:workType", async (req, res) => {
+router.get("/:workType",localAuthenticationMiddleware, async (req, res) => {
   //workType is parameter of person here , we will give paramater after the person in the url  to get the data of specific pereson
   try {
     const workType = req.params.workType; //Extract the work type parameter from the request
@@ -67,7 +70,7 @@ router.get("/:workType", async (req, res) => {
 
 //update method
 //to update the data we use put method
-router.put('/:id',async(req,res)=>{
+router.put('/:id',localAuthenticationMiddleware,async(req,res)=>{
   try {
   const personId = req.params.id //extract the personid's from url parameter
   const updatedPersonData = req.body //update data for the person
@@ -90,7 +93,7 @@ router.put('/:id',async(req,res)=>{
 })
 
 //delete method
-router.delete('/:id',async (req, res) => {
+router.delete('/:id',localAuthenticationMiddleware,async (req, res) => {
   try {
     const personId = req.params.id //extract person id's from url parameter
     const response = await Person.findByIdAndDelete(personId)

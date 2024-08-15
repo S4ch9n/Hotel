@@ -41,37 +41,64 @@ const personSchema = new mongoose.Schema({
   },
 });
 
-//this operation will trigger when we are going to save
+//hashed password
+// This operation triggers before saving a document to the database. 
+// We use the .pre middleware to execute a function before the save operation.
 personSchema.pre("save", async function (next) {
-  //next will be call after the completion of this operation.
-  const person = this; // this represnting here personSchema and storing it in person variable.
+  // next will be called after the completion of this operation.
+  const person = this; // 'this' refers to the current document being saved, here the personSchema document, and we store it in the 'person' variable.
 
-  //hash the password only if it has been modified (or is new)
-  if (!person.isModified("password")) return next(); //isModified , method is provided by mongoose , and returns true if the specific field has been modified . Return false if the field hasn't been modified . If the password has been modified , the function immediately returns , skipping the rest of the middleware .
+  // Hash the password only if it has been modified (or if the document is new).
+  // 'isModified' is a method provided by Mongoose that returns true if the specified field (e.g., 'password') has been modified.
+  // If the password has not been modified, the middleware skips the hashing process and immediately proceeds to the next middleware.
+  if (!person.isModified("password")) return next();
+
+  // This block will execute if the password has been modified or if the document is new.
   try {
-    //hashed password generation
+    // Generate a salt with a cost factor of 10.
     const salt = await bcrypt.genSalt(10);
+    // Hash the password using the generated salt.
 
-    //hash password
-    const hashedPassword = await bcrypt.hash(person.password, salt); //hash is inbuit function which take two parameters , password and salt will combine to make hash password
+    // 'bcrypt.hash' takes two parameters: the plain text password and the salt, and returns the hashed password.
+    const hashedPassword = await bcrypt.hash(person.password, salt); //saved hash password in hashedPassword variable
+    // Bcrypt doesn't just store the hash in the database. The salt used in the hashing process is actually stored as part of the hashed password string itself. The format of the stored hash includes information about the hashing algorithm, the cost factor, the salt, and the resulting hash.
 
-    //replacing or oveririding th plain password with the hashed one
+    // Replace the plain text password with the hashed one.
     person.password = hashedPassword;
+    
+    // Proceed to the next middleware or save the document if there are no other middlewares.
     next();
   } catch (error) {
-    return next(err);
+    // If an error occurs, pass the error to the next middleware.
+    return next(error);
   }
 });
 
-personSchema.methods.comparePassword = async function (candidatePassword) { //The comparePassword method is part of the personSchema in your Mongoose model. It is designed to compare a plaintext password provided by a user with the hashed password stored in the database.
+
+// The comparePassword method is part of the personSchema in your Mongoose model. 
+// It is designed to compare a plaintext password provided by a user with the hashed password stored in the database.
+personSchema.methods.comparePassword = async function (candidatePassword) {
   try {
-    // Use bcrypt to compare the provided with the hashed password
-    const isMatch = await bcrypt.compare(candidatePassword, this.password); // The method uses bcrypt.compare(), which compares the plaintext password with the hashed password (this.password refers to the password field of the current user document).
+    // Use bcrypt to compare the provided plaintext password with the hashed password stored in the database.
+    // 'candidatePassword' is the plaintext password entered by the user during login.
+    // 'this.password' is the hashed password stored in the user's document in the database.
+
+    const isMatch = await bcrypt.compare(candidatePassword, this.password);
+
+    // During the comparison process, bcrypt extracts the salt from the stored hashed password in the database
+    // and uses it to hash the plain text password that the user provides during authentication.
+    
+    // If the resulting hash matches the stored hash, bcrypt returns true, indicating the passwords match.
+    // Otherwise, it returns false.
+    
+    // Return true if the passwords match, otherwise return false.
     return isMatch;
   } catch (error) {
+    // If an error occurs during comparison, throw the error.
     throw error;
   }
 };
+
 
 
 

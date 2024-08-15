@@ -4,10 +4,11 @@ const LocalStrategy = require("passport-local").Strategy;
 // Passport uses the concept of strategies for handling different authentication methods.
 // A strategy is a way to authenticate users. Passport has many built-in strategies,
 // and here we are using the passport-local strategy, which handles authentication using a username and password.
-
+//passport LcoalStrategy , by default , expects to extract the username and password from the request body. 
 const Person = require("./models/person");
 
 //define the local strategy
+//to  verify the username and password , we need to define the function if username and password is correct or not
 passport.use(
   new LocalStrategy(async (username, password, done) => {
     // Authentication logic here
@@ -31,6 +32,7 @@ passport.use(
     }
   })
 );
+
 
 module.exports = passport; //export configured passport
 

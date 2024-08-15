@@ -44,7 +44,8 @@ app.use(passport.initialize())
 // It initializes Passport, allowing it to be used for handling authentication requests.
 
 
-const localAuthenticationMiddleware = passport.authenticate('local', { session: false });
+const localAuthenticationMiddleware = passport.authenticate('local', { session: false });  //local is the strategy we are using in passport...To use authentaication in difffernt routes.
+
 // In this line, we are creating a middleware using Passport's local strategy, 
 // which typically refers to username and password authentication.
 // The option { session: false } indicates that no session should be created 
@@ -60,7 +61,7 @@ app.get('/',(req,res)=>{
 const personRoutes = require('./routes/personRoutes')
 //import the module from models/menuItem.js
 //use the routers
-app.use('/person',localAuthenticationMiddleware, personRoutes)
+app.use('/person', personRoutes)
 //localAuthenticationMiddleware will act as miidleware and will be responsible for verifying the username and password
 
 
