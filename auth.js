@@ -1,11 +1,15 @@
 const passport = require("passport");
-const localStrategy = require("passport-local").Strategy; //means we are using username and password to authenticate user
+
+const LocalStrategy = require("passport-local").Strategy;
+// Passport uses the concept of strategies for handling different authentication methods.
+// A strategy is a way to authenticate users. Passport has many built-in strategies,
+// and here we are using the passport-local strategy, which handles authentication using a username and password.
 
 const Person = require("./models/person");
 
 //define the local strategy
 passport.use(
-  new localStrategy(async (username, password, done) => {
+  new LocalStrategy(async (username, password, done) => {
     // Authentication logic here
     try {
       // Find the user by username
@@ -13,7 +17,6 @@ passport.use(
       if (!user) {
         return done(null, false, { message: "Incorrect username" });
       }
-
       // Compare the provided password with the stored hash
       const isPasswordMatch = await user.comparePassword(password);
       if (isPasswordMatch) {
@@ -30,3 +33,4 @@ passport.use(
 );
 
 module.exports = passport; //export configured passport
+
