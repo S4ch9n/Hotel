@@ -1,8 +1,9 @@
 const express = require("express");
 
 const router = express.Router();
-const passport = require('../auth')
 
+
+const passport = require('../auth')
 const localAuthenticationMiddleware = passport.authenticate('local', { session: false });
 
 //import the module from models/perosn.

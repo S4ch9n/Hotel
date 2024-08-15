@@ -52,7 +52,7 @@ const localAuthenticationMiddleware = passport.authenticate('local', { session: 
 // for the user, meaning the authentication is stateless. This is commonly  used in API token-based authentication, where each request must be independently authenticated.
 // By storing the middleware in a variable, our code becomes cleaner and more organized when handling requests, as localAuthenticationMiddleware will be responsible for verifying the username and password on incoming requests.
 
-app.get('/',(req,res)=>{
+app.get('/',localAuthenticationMiddleware,(req,res)=>{
     res.send("Welcome to our hotel")
 })
 
